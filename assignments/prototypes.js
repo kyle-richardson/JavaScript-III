@@ -223,6 +223,8 @@ Humanoid.prototype.greet = function() {
     language: 'Hordish',
   });
 
+frostMage.checkHealth();
+  warlock.checkHealth();
   frostMage.frostOrb(warlock);
   // frostMage.checkHealth();
   // warlock.checkHealth();
