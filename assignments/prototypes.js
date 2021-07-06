@@ -15,6 +15,15 @@
   * dimensions (These represent the character's size in the video game)
   * destroy() // prototype method that returns: `${this.name} was removed from the game.`
 */
+function GameObject(obj) {
+  this.createdAt = obj.createdAt;
+  this.name = obj.name;
+  this.dimensions = obj.dimensions;
+}
+
+GameObject.prototype.destroy = function() {
+  console.log(`${this.name} was removed from the game.`);
+}
 
 /*
   === CharacterStats ===
@@ -22,6 +31,27 @@
   * takeDamage() // prototype method -> returns the string '<object name> took damage.'
   * should inherit destroy() from GameObject's prototype
 */
+
+function CharacterStats(obj) {
+  GameObject.call(this, obj);
+  this.healthPoints = obj.healthPoints;
+
+}
+
+CharacterStats.prototype = Object.create(GameObject.prototype);
+CharacterStats.prototype.takeDamage = function(num) {
+  this.healthPoints = this.healthPoints - num;
+  console.log(`${this.name} took ${num} damage`);
+}
+CharacterStats.prototype.checkHealth = function() {
+  if (this.healthPoints <=0) {
+    console.log(`${this.name} has fallen!`);
+    this.destroy();
+  }
+  else {
+    console.log(`${this.name} is at ${this.healthPoints} health`);
+  }
+}
 
 /*
   === Humanoid (Having an appearance or character resembling that of a human.) ===
@@ -32,6 +62,16 @@
   * should inherit destroy() from GameObject through CharacterStats
   * should inherit takeDamage() from CharacterStats
 */
+function Humanoid(obj) {
+  CharacterStats.call(this, obj);
+  this.team = obj.team;
+  this.weapons = obj.weapons;
+  this.language = obj.language;
+}
+Humanoid.prototype = Object.create(CharacterStats.prototype);
+Humanoid.prototype.greet = function() {
+  return `${this.name} offers a greeting in ${this.language}`;
+} 
  
 /*
   * Inheritance chain: GameObject -> CharacterStats -> Humanoid
@@ -41,7 +81,7 @@
 
 // Test you work by un-commenting these 3 objects and the list of console logs below:
 
-/*
+
   const mage = new Humanoid({
     createdAt: new Date(),
     dimensions: {
@@ -102,9 +142,120 @@
   console.log(archer.greet()); // Lilith offers a greeting in Elvish.
   console.log(mage.takeDamage()); // Bruce took damage.
   console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
-*/
+
 
   // Stretch task: 
   // * Create Villain and Hero constructor functions that inherit from the Humanoid constructor function.  
   // * Give the Hero and Villains different methods that could be used to remove health points from objects which could result in destruction if health gets to 0 or drops below 0;
   // * Create two new objects, one a villain and one a hero and fight it out with methods!
+
+  function Villian(obj) {
+    Humanoid.call(this, obj);
+  }
+  Villian.prototype = Object.create(Humanoid.prototype);
+
+  Villian.prototype.fireball = function(obj) {
+    let dmg = (Math.floor(Math.random() * 6) +5);
+    console.log(`${this.name} hurls a fireball at ${obj.name}`);
+    obj.takeDamage(dmg);
+    obj.checkHealth();
+  }
+
+  Villian.prototype.leech = function(obj) {
+    obj.healthPoints -= 5;
+    this.healthPoints +=5;
+    console.log(`${this.name} leeches 5 health from ${obj.name}`);
+    obj.takeDamage(5);
+    obj.checkHealth();
+    this.checkHealth();
+
+  }
+
+  function Hero(obj) {
+    Humanoid.call(this, obj);
+  }
+  Hero.prototype = Object.create(Humanoid.prototype);
+
+  Hero.prototype.frostOrb = function(obj) {
+    let dmg = (Math.floor(Math.random() * 5) +6);
+    console.log(`${this.name} casts a frost orb at ${obj.name}`);
+    obj.takeDamage(dmg);
+    obj.checkHealth();
+  }
+
+  Hero.prototype.heal = function() {
+    this.healthPoints += 10;
+    console.log(`${this.name} heals for 10`);
+    this.checkHealth();
+  }
+  
+  const frostMage = new Hero({
+    createdAt: new Date(),
+    dimensions: {
+      length: 1,
+      width: 2,
+      height: 4,
+    },
+    healthPoints: 25,
+    name: 'Mirana',
+    team: 'Forest Kingdom',
+    weapons: [
+      'Scepter',
+      'Staff',
+    ],
+    language: 'Elvish',
+  });
+
+  const warlock = new Villian({
+    createdAt: new Date(),
+    dimensions: {
+      length: 1,
+      width: 2,
+      height: 4,
+    },
+    healthPoints: 25,
+    name: 'Guldan',
+    team: 'Horde',
+    weapons: [
+      'Wand',
+      'Hands',
+    ],
+    language: 'Hordish',
+  });
+
+frostMage.checkHealth();
+  warlock.checkHealth();
+  frostMage.frostOrb(warlock);
+  // frostMage.checkHealth();
+  // warlock.checkHealth();
+
+  warlock.leech(frostMage);
+  // frostMage.checkHealth();
+  // warlock.checkHealth();
+
+  frostMage.frostOrb(warlock);
+  // frostMage.checkHealth();
+  // warlock.checkHealth();
+
+  warlock.fireball(frostMage);
+  // frostMage.checkHealth();
+  // warlock.checkHealth();
+
+  frostMage.heal();
+  // frostMage.checkHealth();
+  // warlock.checkHealth();
+
+  warlock.leech(frostMage);
+  // frostMage.checkHealth();
+  // warlock.checkHealth();
+
+  frostMage.frostOrb(warlock);
+  // frostMage.checkHealth();
+  // warlock.checkHealth();
+
+  warlock.fireball(frostMage);
+  // frostMage.checkHealth();
+  // warlock.checkHealth();
+
+  frostMage.frostOrb(warlock);
+  warlock.fireball(frostMage);
